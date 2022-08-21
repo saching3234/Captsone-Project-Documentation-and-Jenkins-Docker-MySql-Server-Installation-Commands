@@ -1,0 +1,34 @@
+pipeline{
+    agent any
+    tools {nodejs "nodejs"}
+    stages{
+        stage('npm install and ng build --prod'){
+            steps{
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/saching3234/medicare-frontend-angular-admin-portal']]])
+                sh 'npm install'
+                sh 'npm run ng build --prod'
+            }
+         }
+         
+         
+         stage('Build docker image'){
+            steps{
+                script{
+                    sh 'docker build -t reponame/medicare-angular-forntend-project .'
+                }
+            }
+        }
+        stage('Push Image To Hub'){
+            steps{
+                script{
+                    sh 'docker login -u docker_username -p password'
+                    sh 'docker push reponame/medicare-angular-forntend-project'
+                }
+            }
+        }
+         
+         
+        }
+        
+    }
+    
